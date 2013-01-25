@@ -49,7 +49,8 @@ class partners_hook {
 			{
 				$user_role = $users_roles->current();
 				$role_id = intval($user_role->role_id);
-				$params[] = "user_id IN (SELECT user_id from roles_users WHERE role_id = $role_id) ";
+				$params[] = " ( i.user_id IN (SELECT user_id from roles_users WHERE role_id = $role_id) "
+					. " OR i.id IN (SELECT incident_id FROM message m LEFT JOIN reporter r ON (r.id = m.reporter_id) LEFT JOIN roles_users ru ON (r.user_id = ru.user_id) WHERE role_id = $role_id) )";
 			}
 		}
 		
@@ -57,7 +58,9 @@ class partners_hook {
 		if (isset($_GET['partner']))
 		{
 			$role_id = intval($_GET['partner']);
-			$params[] = "user_id IN (SELECT user_id from roles_users WHERE role_id = $role_id) ";
+			$params[] = " ( i.user_id IN (SELECT user_id from roles_users WHERE role_id = $role_id) "
+					. " OR i.id IN (SELECT incident_id FROM message m LEFT JOIN reporter r ON (r.id = m.reporter_id) LEFT JOIN roles_users ru ON (r.user_id = ru.user_id) WHERE role_id = $role_id) )";
+			
 		}
 		
 		Event::$data = $params;
