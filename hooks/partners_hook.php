@@ -19,7 +19,12 @@ class partners_hook {
 		// Only add the events if we are on that controller
 		if (stripos(Router::$current_uri, "admin/reports") === 0)
 		{
-			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'_fetch_incidents_set_params'));
+			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'_filter_admin_reports'));
+		}
+		// Only add the events if we are on that controller
+		if (stripos(Router::$current_uri, "reports") === 0)
+		{
+			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'_filter_reports'));
 		}
 	}
 	
@@ -29,7 +34,7 @@ class partners_hook {
 		echo ($this_sub_page == "partners") ? "<li><a>Partners</a></li>" : "<li><a href=\"".url::site()."admin/manage/partners\">Partners</a></li>";
 	}
 	
-	public function _fetch_incidents_set_params()
+	public function _filter_admin_reports()
 	{
 		$params = Event::$data;
 		
@@ -53,6 +58,22 @@ class partners_hook {
 					. " OR i.id IN (SELECT incident_id FROM message m LEFT JOIN reporter r ON (r.id = m.reporter_id) LEFT JOIN roles_users ru ON (r.user_id = ru.user_id) WHERE role_id = $role_id) )";
 			}
 		}
+		
+		// Filter from partner query param
+		if (isset($_GET['partner']))
+		{
+			$role_id = intval($_GET['partner']);
+			$params[] = " ( i.user_id IN (SELECT user_id from roles_users WHERE role_id = $role_id) "
+					. " OR i.id IN (SELECT incident_id FROM message m LEFT JOIN reporter r ON (r.id = m.reporter_id) LEFT JOIN roles_users ru ON (r.user_id = ru.user_id) WHERE role_id = $role_id) )";
+			
+		}
+		
+		Event::$data = $params;
+	}
+	
+	public function _filter_reports()
+	{
+		$params = Event::$data;
 		
 		// Filter from partner query param
 		if (isset($_GET['partner']))
