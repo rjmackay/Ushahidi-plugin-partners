@@ -25,7 +25,17 @@ class partners_hook {
 		if (stripos(Router::$current_uri, "reports") === 0)
 		{
 			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'filter_reports'));
+			Event::add('ushahidi_action.report_filters_ui', array($this, 'report_filter_ui'));
+			Event::add('ushahidi_action.report_js_filterReportsAction', array($this, 'report_js_filterReportsAction'));
 		}
+	}
+	
+	private function _get_partners()
+	{
+		$partners_roles = Settings_Model::get_setting('partners_roles');
+		$partners_roles = explode(',', $partners_roles);
+		$partners = ORM::factory('role')->in('id', $partners_roles)->find_all();
+		return $partners;
 	}
 	
 	public function nav_admin_manage()
@@ -79,13 +89,32 @@ class partners_hook {
 		// Filter from partner query param
 		if (isset($_GET['partner']))
 		{
-			$role_id = intval($_GET['partner']);
-			$params[] = " ( i.user_id IN (SELECT user_id from roles_users WHERE role_id = $role_id) "
-					. " OR i.id IN (SELECT incident_id FROM message m LEFT JOIN reporter r ON (r.id = m.reporter_id) LEFT JOIN roles_users ru ON (r.user_id = ru.user_id) WHERE role_id = $role_id) )";
+			// Prepare role_id
+			$role_id = $_GET['partner'];
+			if (empty($role_id)) $role_id = array(0);
+			if (!is_array($role_id)) $role_id = array($role_id);
+			$role_id = implode(',',array_map('intval', $role_id));
+			
+			$params[] = " ( i.user_id IN (SELECT user_id from roles_users WHERE role_id IN ($role_id) ) "
+					. " OR i.id IN (SELECT incident_id FROM message m LEFT JOIN reporter r ON (r.id = m.reporter_id) LEFT JOIN roles_users ru ON (r.user_id = ru.user_id) WHERE role_id IN ($role_id) ) )";
 			
 		}
 		
 		Event::$data = $params;
+	}
+	
+	public function report_filter_ui()
+	{
+		$filter = new View('partners_filter_ui');
+		
+		$filter->partners = $this->_get_partners();
+		
+		echo $filter;
+	}
+	
+	public function report_js_filterReportsAction()
+	{
+		View::factory('partners_filter_js')->render(TRUE);
 	}
 	
 }
