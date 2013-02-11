@@ -14,27 +14,27 @@ class partners_hook {
 		// Only add the events if we are on that controller
 		if (stripos(Router::$current_uri, "admin/manage") === 0)
 		{
-			Event::add('ushahidi_action.nav_admin_manage', array($this,'_nav_admin_manage'));
+			Event::add('ushahidi_action.nav_admin_manage', array($this,'nav_admin_manage'));
 		}
 		// Only add the events if we are on that controller
 		if (stripos(Router::$current_uri, "admin/reports") === 0)
 		{
-			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'_filter_admin_reports'));
+			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'filter_admin_reports'));
 		}
 		// Only add the events if we are on that controller
 		if (stripos(Router::$current_uri, "reports") === 0)
 		{
-			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'_filter_reports'));
+			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'filter_reports'));
 		}
 	}
 	
-	public function _nav_admin_manage()
+	public function nav_admin_manage()
 	{
 		$this_sub_page = Event::$data;
 		echo ($this_sub_page == "partners") ? "<li><a>Partners</a></li>" : "<li><a href=\"".url::site()."admin/manage/partners\">Partners</a></li>";
 	}
 	
-	public function _filter_admin_reports()
+	public function filter_admin_reports()
 	{
 		$params = Event::$data;
 		
@@ -71,7 +71,7 @@ class partners_hook {
 		Event::$data = $params;
 	}
 	
-	public function _filter_reports()
+	public function filter_reports()
 	{
 		$params = Event::$data;
 		
