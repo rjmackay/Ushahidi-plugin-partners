@@ -31,7 +31,8 @@ class partners_hook {
 	public function nav_admin_manage()
 	{
 		$this_sub_page = Event::$data;
-		echo ($this_sub_page == "partners") ? "<li><a>Partners</a></li>" : "<li><a href=\"".url::site()."admin/manage/partners\">Partners</a></li>";
+		echo ($this_sub_page == "partners") ? "<li><a>".Kohana::lang('partners.partners')."</a></li>" : "<li><a href=\"".url::site()."admin/manage/partners\">".Kohana::lang('partners.partners')."</a></li>";
+	}
 	}
 	
 	public function filter_admin_reports()
