@@ -19,6 +19,7 @@ class partners_hook {
 		// Only add the events if we are on that controller
 		if (stripos(Router::$current_uri, "admin/reports") === 0)
 		{
+			Event::add('ushahidi_action.nav_admin_reports', array($this, 'nav_admin_reports'));
 			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'filter_admin_reports'));
 		}
 		// Only add the events if we are on that controller
@@ -43,6 +44,20 @@ class partners_hook {
 		$this_sub_page = Event::$data;
 		echo ($this_sub_page == "partners") ? "<li><a>".Kohana::lang('partners.partners')."</a></li>" : "<li><a href=\"".url::site()."admin/manage/partners\">".Kohana::lang('partners.partners')."</a></li>";
 	}
+	
+	public function nav_admin_reports()
+	{
+		$this_sub_page = Event::$data;
+		
+		$partners = $this->_get_partners();
+		foreach($partners as $partner)
+		{
+			$name = $partner->name;
+			$id = $partner->id;
+			echo ($this_sub_page == "partner_".$id)
+				? "<li><a>".Kohana::lang('partners.partner_reports', $name)."</a></li>"
+				: "<li><a href=\"".url::site()."admin/reports/partner/$id\">".Kohana::lang('partners.partner_reports', $name)."</a></li>";
+		}
 	}
 	
 	public function filter_admin_reports()
@@ -76,7 +91,6 @@ class partners_hook {
 			$role_id = intval($_GET['partner']);
 			$params[] = " ( i.user_id IN (SELECT user_id from roles_users WHERE role_id = $role_id) "
 					. " OR i.id IN (SELECT incident_id FROM message m LEFT JOIN reporter r ON (r.id = m.reporter_id) LEFT JOIN roles_users ru ON (r.user_id = ru.user_id) WHERE role_id = $role_id) )";
-			
 		}
 		
 		Event::$data = $params;
