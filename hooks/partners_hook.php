@@ -26,8 +26,11 @@ class partners_hook {
 		if (stripos(Router::$current_uri, "reports") === 0)
 		{
 			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'filter_reports'));
-			Event::add('ushahidi_action.report_filters_ui', array($this, 'report_filter_ui'));
-			Event::add('ushahidi_action.report_js_filterReportsAction', array($this, 'report_js_filterReportsAction'));
+			if (stripos(Router::$current_uri, "reports/partners") === FALSE)
+			{
+				Event::add('ushahidi_action.report_filters_ui', array($this, 'report_filter_ui'));
+				Event::add('ushahidi_action.report_js_filterReportsAction', array($this, 'report_js_filterReportsAction'));
+			}
 		}
 	}
 	
@@ -55,8 +58,8 @@ class partners_hook {
 			$name = $partner->name;
 			$id = $partner->id;
 			echo ($this_sub_page == "partner_".$id)
-				? "<li><a>".Kohana::lang('partners.partner_reports', $name)."</a></li>"
-				: "<li><a href=\"".url::site()."admin/reports/partner/$id\">".Kohana::lang('partners.partner_reports', $name)."</a></li>";
+				? "<li class=\"active\"><a>".Kohana::lang('partners.partner_reports', $name)."</a></li>"
+				: "<li><a href=\"".url::site()."admin/reports/partner_reports/index/$id\">".Kohana::lang('partners.partner_reports', $name)."</a></li>";
 		}
 	}
 	
