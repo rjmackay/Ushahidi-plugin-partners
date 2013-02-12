@@ -24,25 +24,25 @@ class Partners_Install {
 	{
 		// Add dummy role for ELOG
 		$this->db->query("
-			INSERT INTO `".Kohana::config('database.default.table_prefix')."roles`
+			INSERT IGNORE INTO `".Kohana::config('database.default.table_prefix')."roles`
 			VALUES
 			(2001,'ELOG','ELOG',0);
 		");
 		// Set ELOG permissions
 		$this->db->query("
-			INSERT INTO `".Kohana::config('database.default.table_prefix')."permissions_roles`
+			INSERT IGNORE INTO `".Kohana::config('database.default.table_prefix')."permissions_roles`
 			VALUES
-			(2009,1),
-			(2009,2),
-			(2009,4),
-			(2009,16),
-			(2009,17),
-			(2009,18)
+			(2001,1),
+			(2001,2),
+			(2001,4),
+			(2001,16),
+			(2001,17),
+			(2001,18)
 			;
 		");
 		
 		// Set initial setting for partner roles
-		Settings_Model::save_setting('partners_roles', '2009');
+		Settings_Model::save_setting('partners_roles', '2001');
 	}
 
 	/**
