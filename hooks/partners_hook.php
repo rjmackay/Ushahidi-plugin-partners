@@ -30,12 +30,24 @@ class partners_hook {
 			Event::add('ushahidi_action.nav_admin_manage', array($this,'nav_admin_manage'));
 		}
 		// Only add the events if we are on that controller
+		// Reports edit
+		if (stripos(Router::$current_uri, "admin/reports/edit") === 0)
+		{
+			// If user has a partner role
+			if ($role_id = $this->_get_user_role() AND isset(Router::$segments[3]))
+			{
+				$id = Router::$segments[3];
+				
+				if (! $this->_check_incident_access($id, $role_id)) throw new Kohana_404_Exception();
+			}
+		}
+		// Backend reports
 		if (stripos(Router::$current_uri, "admin/reports") === 0)
 		{
 			Event::add('ushahidi_action.nav_admin_reports', array($this, 'nav_admin_reports'));
 			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'filter_admin_reports'));
 		}
-		// Only add the events if we are on that controller
+		// Frontend reports
 		if (stripos(Router::$current_uri, "reports") === 0)
 		{
 			Event::add('ushahidi_filter.fetch_incidents_set_params', array($this,'filter_reports'));
@@ -55,6 +67,59 @@ class partners_hook {
 		return $partners;
 	}
 	
+	private function _get_user_role()
+	{
+		if ($this->auth->logged_in())
+		{
+			$user = $this->auth->get_user();
+			
+			$partners_roles = Settings_Model::get_setting('partners_roles');
+			$partners_roles = explode(',', $partners_roles);
+			$partners_roles = array_map('intval', $partners_roles);
+			
+			$user_roles = $this->db->query('SELECT * FROM roles_users WHERE role_id IN ('.implode(',',$partners_roles).') AND user_id = ? LIMIT 0,1', $user->id);
+			
+			if (count($user_roles))
+			{
+				$user_role = $user_roles->current();
+				return intval($user_role->role_id);
+			}
+		}
+
+		return FALSE;
+	}
+	private function _check_incident_access($incident_id, $role_id)
+	{
+		$result = $this->db->query("
+			SELECT 
+				i.id FROM incident i 
+			WHERE
+				i.id = ? AND
+				( 
+					i.user_id IN (
+						SELECT user_id from roles_users WHERE role_id = ?
+					) 
+					OR i.id IN (
+						SELECT incident_id 
+						FROM message m
+						LEFT JOIN reporter r ON (r.id = m.reporter_id)
+						LEFT JOIN roles_users ru ON (r.user_id = ru.user_id)
+						WHERE
+							role_id = ?
+					)
+				)
+			LIMIT 0,1",
+			array(
+				$incident_id,
+				$role_id,
+				$role_id
+			)
+		);
+		
+		if ($result->count() > 0) return TRUE;
+		
+		return FALSE;
+	}
 	public function nav_admin_manage()
 	{
 		$this_sub_page = Event::$data;
@@ -64,6 +129,9 @@ class partners_hook {
 	public function nav_admin_reports()
 	{
 		$this_sub_page = Event::$data;
+		
+		// If use has a partner role, don't add menu items
+		if ($this->_get_user_role()) return;
 		
 		$partners = $this->_get_partners();
 		foreach($partners as $partner)
@@ -81,24 +149,10 @@ class partners_hook {
 		$params = Event::$data;
 		
 		// Filter by current users partner role
-		if ($this->auth->logged_in())
+		if ($role_id = $this->_get_user_role())
 		{
-			$user = $this->auth->get_user();
-			
-			$partners_roles = Settings_Model::get_setting('partners_roles');
-			$partners_roles = explode(',', $partners_roles);
-			$partners_roles = array_map('intval', $partners_roles);
-			
-			$users_roles = $this->db->query('SELECT * FROM roles_users WHERE role_id IN ('.implode(',',$partners_roles).') AND user_id = ?', $user->id);
-			
-			// if user has partner role then filter to just their reports
-			if(count($users_roles))
-			{
-				$user_role = $users_roles->current();
-				$role_id = intval($user_role->role_id);
-				$params[] = " ( i.user_id IN (SELECT user_id from roles_users WHERE role_id = $role_id) "
-					. " OR i.id IN (SELECT incident_id FROM message m LEFT JOIN reporter r ON (r.id = m.reporter_id) LEFT JOIN roles_users ru ON (r.user_id = ru.user_id) WHERE role_id = $role_id) )";
-			}
+			$params[] = " ( i.user_id IN (SELECT user_id from roles_users WHERE role_id = $role_id) "
+				. " OR i.id IN (SELECT incident_id FROM message m LEFT JOIN reporter r ON (r.id = m.reporter_id) LEFT JOIN roles_users ru ON (r.user_id = ru.user_id) WHERE role_id = $role_id) )";
 		}
 		
 		// Filter from partner query param
