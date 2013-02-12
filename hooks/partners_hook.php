@@ -83,7 +83,7 @@ class partners_hook {
 	 * 
 	 * @return Bool|int  role_id for partner role or FALSE if user doesn't have one
 	 **/
-	private function _get_user_role()
+	public function _get_user_role()
 	{
 		if ($this->auth->logged_in())
 		{

@@ -25,6 +25,9 @@ class Partner_Reports_Controller extends Tools_Controller
 	
 	public function index($partner)
 	{
+		$hooks = new partners_hook;
+		if ($hooks->_get_user_role()) throw new Kohana_404_Exception;
+		
 		$this->template->this_page = 'reports';
 		
 		// Push partner id into the URL params
