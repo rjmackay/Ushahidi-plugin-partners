@@ -53,15 +53,17 @@
 				<?php
 				}
 				?>
+				
+				
 				<!-- report-table -->
 				<div class="table-tabs">
+				<h3></h3>
 					<?php print form::open(NULL,array('id' => 'sharingListing', 'name' => 'sharingListing')); ?>
 						<div class="table-holder">
 							<table class="table">
 								<thead>
 									<tr>
-										<th class="col-1">&nbsp;</th>
-										<th class="col-2"><?php echo Kohana::lang('ui_main.role');?></th>
+										<th class="col-1" colspan="2"><?php echo Kohana::lang('partners.select_partners'); ?></th>
 									</tr>
 								</thead>
 								<tbody>
@@ -80,7 +82,7 @@
 									{
 										?>
 										<tr>
-											<td class="col-1"><input name="role_id[]" type="checkbox" value="<?php echo $role->id; ?>" <?php echo in_array($role->id, $form['role_id']) ? ' checked="checked"': ''; ?>></td>
+											<td class="col-1" style="width: 30px;"><input name="role_id[]" type="checkbox" value="<?php echo $role->id; ?>" <?php echo in_array($role->id, $form['role_id']) ? ' checked="checked"': ''; ?>></td>
 											<td class="col-2"><?php echo $role->name; ?>
 											</td>
 										</tr>

@@ -1,5 +1,18 @@
 <?php defined('SYSPATH') or die('No direct script access.');
-
+/**
+ * Partners Controller.
+ * This controller manages selecting roles to treat as partners
+ *
+ * PHP version 5
+ * LICENSE: This source file is subject to LGPL license
+ * that is available through the world-wide-web at the following URI:
+ * http://www.gnu.org/copyleft/lesser.html
+ * @author	   Ushahidi Team <team@ushahidi.com>
+ * @package	   Partners
+ * @copyright  Ushahidi - http://www.ushahidi.com
+ * @license	   http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
+ */
+ 
 class Partners_Controller extends Tools_Controller
 {
 	public function __construct()

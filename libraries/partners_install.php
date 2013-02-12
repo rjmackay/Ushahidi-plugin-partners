@@ -2,7 +2,7 @@
 /**
  * Performs install/uninstall methods for the Partners Plugin
  *
- * @package    Ushahidi
+ * @package    Partners
  * @author     Ushahidi Team
  * @copyright  (c) 2008 Ushahidi Team
  * @license    http://www.ushahidi.com/license.html
