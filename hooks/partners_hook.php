@@ -14,6 +14,7 @@
  */
 
 class partners_hook {
+	
 	public function __construct()
 	{
 		$this->auth = Auth::instance();
@@ -22,6 +23,11 @@ class partners_hook {
 		Event::add('system.pre_controller', array($this, 'add'));
 	}
 	
+	/**
+	 * Call back for system.pre_controller event
+	 * 
+	 * Adds further event callbacks based on current url
+	 **/
 	public function add()
 	{
 		// Only add the events if we are on that controller
@@ -59,6 +65,11 @@ class partners_hook {
 		}
 	}
 	
+	/**
+	 * Get role objects selected to be partners
+	 * 
+	 * @return ORM_Iterator Collection of Role_Model objects 
+	 **/
 	private function _get_partners()
 	{
 		$partners_roles = Settings_Model::get_setting('partners_roles');
@@ -67,6 +78,11 @@ class partners_hook {
 		return $partners;
 	}
 	
+	/**
+	 * Get partner role for current user
+	 * 
+	 * @return Bool|int  role_id for partner role or FALSE if user doesn't have one
+	 **/
 	private function _get_user_role()
 	{
 		if ($this->auth->logged_in())
@@ -88,6 +104,13 @@ class partners_hook {
 
 		return FALSE;
 	}
+
+	/**
+	 * Check if partner role has access to this incident
+	 * 
+	 * @param $incident_id
+	 * @param $role_id
+	 */
 	private function _check_incident_access($incident_id, $role_id)
 	{
 		$result = $this->db->query("
@@ -120,12 +143,19 @@ class partners_hook {
 		
 		return FALSE;
 	}
+	
+	/**
+	 * Callback function for ushahidi_action.nav_admin_manage
+	 */
 	public function nav_admin_manage()
 	{
 		$this_sub_page = Event::$data;
 		echo ($this_sub_page == "partners") ? "<li><a>".Kohana::lang('partners.partners')."</a></li>" : "<li><a href=\"".url::site()."admin/manage/partners\">".Kohana::lang('partners.partners')."</a></li>";
 	}
 	
+	/**
+	 * Callback function for ushahidi_action.nav_admin_reports
+	 */
 	public function nav_admin_reports()
 	{
 		$this_sub_page = Event::$data;
@@ -144,6 +174,9 @@ class partners_hook {
 		}
 	}
 	
+	/**
+	 * Callback function for ushahidi_filter.fetch_incidents_set_params
+	 */
 	public function filter_admin_reports()
 	{
 		$params = Event::$data;
@@ -166,6 +199,9 @@ class partners_hook {
 		Event::$data = $params;
 	}
 	
+	/**
+	 * Callback function for ushahidi_filter.fetch_incidents_set_params
+	 */
 	public function filter_reports()
 	{
 		$params = Event::$data;
@@ -187,6 +223,9 @@ class partners_hook {
 		Event::$data = $params;
 	}
 	
+	/**
+	 * Callback function for ushahidi_action.report_filters_ui
+	 */
 	public function report_filter_ui()
 	{
 		$filter = new View('partners_filter_ui');
@@ -196,6 +235,9 @@ class partners_hook {
 		echo $filter;
 	}
 	
+	/**
+	 * Callback function for ushahidi_action.report_js_filterReportsAction
+	 */
 	public function report_js_filterReportsAction()
 	{
 		View::factory('partners_filter_js')->render(TRUE);
