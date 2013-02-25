@@ -13,7 +13,7 @@
  * @license	   http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
  
-class Partners_Controller extends Tools_Controller
+class Partners_Controller extends Main_Controller
 {
 	
 	public $auto_render = FALSE;
